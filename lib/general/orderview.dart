@@ -1,6 +1,7 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
+import 'package:newamariders/general/delivery.dart';
 class OrderView extends StatefulWidget {
   String orderno;
   String outlet;
@@ -158,6 +159,7 @@ class _OrderViewState extends State<OrderView> {
                 ),
                 ElevatedButton(onPressed: (){
                   if(status == 'Dispatched'){
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const DeliveryPage()));
 
                   }
                   else{
