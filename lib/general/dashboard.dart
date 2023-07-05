@@ -4,6 +4,7 @@ import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:newamariders/auth/login.dart';
+import 'package:newamariders/general/allorders.dart';
 import 'package:newamariders/general/orderview.dart';
 
 class DashboardPage extends StatefulWidget {
@@ -96,6 +97,7 @@ class _DashboardPageState extends State<DashboardPage> {
                             height: 66,
                             child: GestureDetector(
                               onTap: (){
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => AllOrders(selectedDate: TAS4, end: TAS5)));
                                 
                               },
                               child: Column(
