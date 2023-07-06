@@ -5,7 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:newamariders/auth/login.dart';
 import 'package:newamariders/general/allorders.dart';
+import 'package:newamariders/general/cancelledOrders.dart';
+import 'package:newamariders/general/deliveredOrders.dart';
 import 'package:newamariders/general/orderview.dart';
+import 'package:newamariders/general/returnedOrders.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -67,17 +70,25 @@ class _DashboardPageState extends State<DashboardPage> {
                                   fontWeight: FontWeight.w600,
                                   color: Colors.white),
                             ),
-                            Text(user!.email as String, style: TextStyle(color: Colors.white, fontSize: 16),),
+                            Text(
+                              user!.email as String,
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 16),
+                            ),
                           ],
                         ),
                         ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            primary: Color.fromARGB(255, 119, 194, 255),
-                          ),
-                          onPressed: (){
-                            FirebaseAuth.instance.signOut();
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
-                          }, child: Text('Exit'))
+                            style: ElevatedButton.styleFrom(
+                              primary: Color.fromARGB(255, 119, 194, 255),
+                            ),
+                            onPressed: () {
+                              FirebaseAuth.instance.signOut();
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => LoginPage()));
+                            },
+                            child: Text('Exit'))
                       ],
                     ),
                     const SizedBox(
@@ -89,52 +100,74 @@ class _DashboardPageState extends State<DashboardPage> {
                         Container(
                           padding: EdgeInsets.all(3),
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(5),
-                            color: Color.fromARGB(169, 183, 253, 214)
-                          ),
+                              borderRadius: BorderRadius.circular(5),
+                              color: Color.fromARGB(169, 183, 253, 214)),
                           child: SizedBox(
                             width: 116,
                             height: 66,
                             child: GestureDetector(
-                              onTap: (){
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => AllOrders(selectedDate: TAS4, end: TAS5)));
-                                
+                              onTap: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => AllOrders(
+                                            selectedDate: TAS4, end: TAS5)));
                               },
                               child: Column(
                                 children: [
-                                  Icon(Icons.store,color: Colors.white),
-                                  Text('All Orders', style: TextStyle(fontWeight: FontWeight.w500, color: Colors.white),),
-                                  Text('Total: 30', style: TextStyle(fontWeight: FontWeight.w500, color: Colors.white),)
+                                  Icon(Icons.store, color: Colors.white),
+                                  Text(
+                                    'All Orders',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.white),
+                                  ),
+                                  Text(
+                                    'Total: 30',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.white),
+                                  )
                                 ],
                               ),
                             ),
-
                           ),
                         ),
-                         Container(
+                        Container(
                           padding: EdgeInsets.all(3),
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(5),
-                            color: Color.fromARGB(199, 96, 85, 247)
-                          ),
+                              borderRadius: BorderRadius.circular(5),
+                              color: Color.fromARGB(199, 96, 85, 247)),
                           child: SizedBox(
                             width: 116,
                             height: 66,
-              
                             child: GestureDetector(
-                              onTap: (){
+                              onTap: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => DeliveredOrders(
+                                            selectedDate: TAS4, end: TAS5)));
                               },
                               child: Column(
                                 children: [
-                                  Icon(Icons.motorcycle_outlined,color: Colors.white),
-                                  Text('Delivered Orders', style: TextStyle(fontWeight: FontWeight.w500, color: Colors.white),),
-                                  Text('Total: 28', style: TextStyle(fontWeight: FontWeight.w500, color: Colors.white),)
+                                  Icon(Icons.motorcycle_outlined,
+                                      color: Colors.white),
+                                  Text(
+                                    'Delivered Orders',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.white),
+                                  ),
+                                  Text(
+                                    'Total: 28',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.white),
+                                  )
                                 ],
                               ),
                             ),
-
-                          
-
                           ),
                         )
                       ],
@@ -142,71 +175,97 @@ class _DashboardPageState extends State<DashboardPage> {
                     const SizedBox(
                       height: 20,
                     ),
-                     Row(
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         Container(
                           padding: EdgeInsets.all(3),
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(5),
-                            color: Color.fromARGB(169, 250, 231, 57)
-                          ),
+                              borderRadius: BorderRadius.circular(5),
+                              color: Color.fromARGB(169, 250, 231, 57)),
                           child: SizedBox(
                             width: 116,
                             height: 66,
                             child: GestureDetector(
-                              onTap: (){
-                                
+                              onTap: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => ReturnedOrders(
+                                            selectedDate: TAS4, end: TAS5)));
                               },
                               child: Column(
                                 children: [
-                                  Icon(Icons.arrow_back_sharp,color: Colors.white),
-                                  Text('Returned Orders', style: TextStyle(fontWeight: FontWeight.w500, color: Colors.white),),
-                                  Text('Total: 0', style: TextStyle(fontWeight: FontWeight.w500, color: Colors.white),)
+                                  Icon(Icons.arrow_back_sharp,
+                                      color: Colors.white),
+                                  Text(
+                                    'Returned Orders',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.white),
+                                  ),
+                                  Text(
+                                    'Total: 0',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.white),
+                                  )
                                 ],
                               ),
                             ),
-
                           ),
                         ),
-                         Container(
+                        Container(
                           padding: EdgeInsets.all(3),
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(5),
-                            color: Color.fromARGB(197, 253, 57, 57)
-                          ),
+                              borderRadius: BorderRadius.circular(5),
+                              color: Color.fromARGB(197, 253, 57, 57)),
                           child: SizedBox(
                             width: 116,
                             height: 66,
-              
                             child: GestureDetector(
-                              onTap: (){
-                                
+                              onTap: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => CancelledOrders(
+                                            selectedDate: TAS4, end: TAS5)));
                               },
                               child: Column(
                                 children: [
-                                  Icon(Icons.backspace_sharp,color: Colors.white),
-                                  Text('Cancelled Orders', style: TextStyle(fontWeight: FontWeight.w500, color: Colors.white),),
-                                  Text('Total: 2', style: TextStyle(fontWeight: FontWeight.w500, color: Colors.white),)
+                                  Icon(Icons.backspace_sharp,
+                                      color: Colors.white),
+                                  Text(
+                                    'Cancelled Orders',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.white),
+                                  ),
+                                  Text(
+                                    'Total: 2',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.white),
+                                  )
                                 ],
                               ),
                             ),
-
                           ),
                         )
                       ],
                     ),
-                    
                   ],
                 ),
               ),
             ),
-
             Container(
               margin: EdgeInsets.fromLTRB(10, 20, 10, 0),
               child: Column(
                 children: [
-                  Text('Activity Summary', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),),
+                  Text(
+                    'Activity Summary',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                  ),
                   SizedBox(
                     height: 20,
                   ),
@@ -215,7 +274,13 @@ class _DashboardPageState extends State<DashboardPage> {
                       children: [
                         Row(
                           children: [
-                            Text('New Orders - $TAS2', style: TextStyle(color:const Color.fromARGB(255, 39, 36, 36),fontSize: 16, fontWeight: FontWeight.w500),),
+                            Text(
+                              'New Orders - $TAS2',
+                              style: TextStyle(
+                                  color: const Color.fromARGB(255, 39, 36, 36),
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500),
+                            ),
                           ],
                         ),
                         const SizedBox(
@@ -229,134 +294,150 @@ class _DashboardPageState extends State<DashboardPage> {
                           ),
                           child: SizedBox(
                             width: double.infinity,
-                            height: 300,
+                            height: 270,
                             child: Column(
                               children: [
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text('Order No.', style: TextStyle(fontWeight: FontWeight.w500),),
-                                    Text('Store', style: TextStyle(fontWeight: FontWeight.w500),),
-                                    
-                                    Text('Status',style: TextStyle(fontWeight: FontWeight.w500)),
-                                    Text('Assigned Time',style: TextStyle(fontWeight: FontWeight.w500))
-
+                                    Text(
+                                      'Order No.',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w500),
+                                    ),
+                                    Text(
+                                      'Store',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w500),
+                                    ),
+                                    Text('Status',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w500)),
+                                    Text('Assigned Time',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w500))
                                   ],
                                 ),
                                 const SizedBox(
                                   height: 20,
                                 ),
-                                
-                                  Expanded(
-                                      
-                                    child: FirebaseAnimatedList(
-                                         query: dbRef.orderByChild('RiderMail').equalTo(user!.email),
-                                                        itemBuilder: (BuildContext context, DataSnapshot snapshot,
-                                                          Animation<double> animation, int index) {
-                                                          Map orders = snapshot.value as Map;
-                                                          orders['key'] = snapshot.key;
-                                    
-                                                          // var dt3 = DateTime.fromMillisecondsSinceEpoch(
-                                                          // orders['postTime'].millisecondsSinceEpoch);
-                                                          // var TAS3 = DateFormat('dd/MM/yyyy').format(dt3);
-                                    
-                                                          
-                                                          if(orders['outlet'] == 'Naivas Mountain Mall'){
-                                                            store = 'Mountain Mall';
-                                                          }
-                                                          
-                                                          else if(orders['outlet'] == 'Naivas Gateway Mall'){
-                                                            store = 'Gateway Mall';
-                                                          }
-                                                          else{
-                                                            store = 'Not Set';
-                                                          }
+                                Expanded(
+                                  child: FirebaseAnimatedList(
+                                      query: dbRef
+                                          .orderByChild('RiderMail')
+                                          .equalTo(user!.email),
+                                      itemBuilder: (BuildContext context,
+                                          DataSnapshot snapshot,
+                                          Animation<double> animation,
+                                          int index) {
+                                        Map orders = snapshot.value as Map;
+                                        orders['key'] = snapshot.key;
 
-                                                      
-                                                          if(orders['Time'] == null){
-                                                              return Container();
-                                                                  }
-                                                          else{
-                                                            var dt3 = DateTime.fromMillisecondsSinceEpoch(
-                                                              int.parse(orders['Time']));
-                                                          var TAS3 = DateFormat('dd/MM/yyyy').format(dt3);
-                                                          var TAS9 = DateFormat('hh:mm a').format(dt3);
-                                                          if (TAS3.compareTo(TAS2) == 0){
-                                                            return GestureDetector(
-                                                              onTap: (){
-                                                                Navigator.push(context, MaterialPageRoute(builder: (context) => OrderView(orderno: snapshot.key as String, outlet: store, status: orders['status'])));
-                                                                
-                                                              },
-                                                              child: Column(
-                                                                children: [
-                                                                  Row(
-                                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                                    children: [
-                                                                      Text('${snapshot.key}'),
-                                                                      Text(store),
-                                                                      Text('${orders['status']}'),
-                                                                      Text('$TAS9'),
-                                                                      
-                                    
-                                                                    ],
-                                                                  ),
-                                                                  
-                                                                  const SizedBox(
-                                                                    height: 13,
-                                                                  )
-                                                                ],
-                                                              ),
-                                                            );
-                                                          }
-                                                          else{
-                                                            return Container();
-                                                          }
-                                                          }
-                                                            }
-                                                                                   
-                                                                    ),
-                                    ),
-                                    GestureDetector(
-                                      onTap: (){},
-                                      child: GestureDetector(
-                                        onTap: (){
-                                         
-                                        },
-                                        child: Row(
-                                          children: [
-                                            Text('View All', style: TextStyle(color: Colors.red),),
-                                            Icon(Icons.arrow_forward_ios, size: 10,color: Colors.red,)
-                                      
-                                          ],
+                                        // var dt3 = DateTime.fromMillisecondsSinceEpoch(
+                                        // orders['postTime'].millisecondsSinceEpoch);
+                                        // var TAS3 = DateFormat('dd/MM/yyyy').format(dt3);
+
+                                        if (orders['outlet'] ==
+                                            'Naivas Mountain Mall') {
+                                          store = 'Mountain Mall';
+                                        } else if (orders['outlet'] ==
+                                            'Naivas Gateway Mall') {
+                                          store = 'Gateway Mall';
+                                        } else {
+                                          store = 'Not Set';
+                                        }
+
+                                        if (orders['Time'] == null) {
+                                          return Container();
+                                        } else {
+                                          var dt3 = DateTime
+                                              .fromMillisecondsSinceEpoch(
+                                                  int.parse(orders['Time']));
+                                          var TAS3 = DateFormat('dd/MM/yyyy')
+                                              .format(dt3);
+                                          var TAS9 =
+                                              DateFormat('hh:mm a').format(dt3);
+                                          if (TAS3.compareTo(TAS2) == 0) {
+                                            return GestureDetector(
+                                              onTap: () {
+                                                Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            OrderView(
+                                                                orderno: snapshot
+                                                                        .key
+                                                                    as String,
+                                                                outlet: store,
+                                                                status: orders[
+                                                                    'status'])));
+                                              },
+                                              child: Column(
+                                                children: [
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    children: [
+                                                      Text('${snapshot.key}'),
+                                                      Text(store),
+                                                      Text(
+                                                          '${orders['status']}'),
+                                                      Text('$TAS9'),
+                                                    ],
+                                                  ),
+                                                  const SizedBox(
+                                                    height: 13,
+                                                  )
+                                                ],
+                                              ),
+                                            );
+                                          } else {
+                                            return Container();
+                                          }
+                                        }
+                                      }),
+                                ),
+                                GestureDetector(
+                                  onTap: () {},
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) => AllOrders(
+                                                  selectedDate: TAS4,
+                                                  end: TAS5)));
+                                    },
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          'View All',
+                                          style: TextStyle(color: Colors.red),
                                         ),
-                                      ),
+                                        Icon(
+                                          Icons.arrow_forward_ios,
+                                          size: 10,
+                                          color: Colors.red,
+                                        )
+                                      ],
                                     ),
-                                    const SizedBox(
-                                      height: 20,
-                                    ),
-
-                                    
-                                    
+                                  ),
+                                ),
+                                const SizedBox(
+                                  height: 20,
+                                ),
                               ],
                             ),
-
                           ),
                         ),
-                        
-
                       ],
                     ),
                   )
-                  
-                  
-
                 ],
               ),
             )
-
-
-
-
           ],
         ),
       ),

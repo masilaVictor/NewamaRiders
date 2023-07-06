@@ -4,8 +4,8 @@ import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:newamariders/general/dashboard.dart';
+import 'package:newamariders/general/order.dart';
 import 'package:newamariders/general/ordersDate.dart';
-
 
 class AllOrders extends StatefulWidget {
   var selectedDate;
@@ -13,11 +13,11 @@ class AllOrders extends StatefulWidget {
   AllOrders({super.key, required this.selectedDate, required this.end});
 
   @override
-  State<AllOrders> createState() => _AllOrdersState(selectedDate,end);
+  State<AllOrders> createState() => _AllOrdersState(selectedDate, end);
 }
 
 class _AllOrdersState extends State<AllOrders> {
-    Query dbRef = FirebaseDatabase.instance.ref().child('Orders');
+  Query dbRef = FirebaseDatabase.instance.ref().child('Orders');
   final User? user = FirebaseAuth.instance.currentUser;
   var selectedDate;
   var end;
@@ -32,8 +32,10 @@ class _AllOrdersState extends State<AllOrders> {
         automaticallyImplyLeading: false,
         leading: IconButton(
             onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const DashboardPage()));
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const DashboardPage()));
             },
             icon: Icon(Icons.arrow_back_ios)),
       ),
@@ -75,10 +77,8 @@ class _AllOrdersState extends State<AllOrders> {
                           int.parse(order['AssignedTime']));
                       var TAS3 = DateFormat('dd/MM/yyyy').format(dt3);
 
-                      if ((TAS3.compareTo(end) == 1) ||
-                          TAS3.compareTo(selectedDate) == 0) {
+                      if (TAS3.compareTo(selectedDate) == 0) {
                         //allOrders.add(index);
-                        
 
                         return Container(
                           margin: const EdgeInsets.all(10),
@@ -89,7 +89,8 @@ class _AllOrdersState extends State<AllOrders> {
                                   : order['status'] == 'Processing'
                                       ? Colors.blue
                                       : order['status'] == 'Transit'
-                                          ? const Color.fromARGB(255, 102, 92, 0)
+                                          ? const Color.fromARGB(
+                                              255, 102, 92, 0)
                                           : order['status'] == 'Delivered'
                                               ? Colors.green
                                               : Color.fromARGB(80, 126, 1, 42),
@@ -98,7 +99,13 @@ class _AllOrdersState extends State<AllOrders> {
                             children: [
                               GestureDetector(
                                 onTap: () {
-                                 
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => Order(
+                                              orderno: snapshot.key as String,
+                                              outlet: order['outlet'],
+                                              status: order['status'])));
                                 },
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -136,7 +143,6 @@ class _AllOrdersState extends State<AllOrders> {
                       }
                     }),
               ),
-              
             ],
           ),
         ),
