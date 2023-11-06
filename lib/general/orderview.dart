@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:newamariders/general/delivery.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class OrderView extends StatefulWidget {
   String orderno;
@@ -72,6 +74,27 @@ class _OrderViewState extends State<OrderView> {
         '${place.street}, ${place.subLocality}, ${place.locality}, ${place.postalCode}, ${place.country}';
     setState(() {});
   }
+  var thisOrder = [];
+  var isLoaded = false;
+
+  @override
+  void initState(){
+    super.initState();
+    getThisOrder();
+  }
+
+
+
+  getThisOrder() async {
+    final response = await http.get(Uri.parse("http://api.newamadelivery.co.ke/fetchOrder.php?orderId=${orderno}"));
+    setState(() {
+      thisOrder = json.decode(response.body);
+      isLoaded = true;
+    });
+  }
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -109,16 +132,14 @@ class _OrderViewState extends State<OrderView> {
                       margin: EdgeInsets.fromLTRB(5, 10, 5, 0),
                       child: Column(
                         children: [
-                          Expanded(
-                            child: FirebaseAnimatedList(
-                                query: dbRef1,
-                                itemBuilder: (BuildContext context,
-                                    DataSnapshot snapshot,
-                                    Animation<double> animation,
-                                    int index) {
-                                  Map orders = snapshot.value as Map;
-                                  orders['key'] = snapshot.key;
-                                  return Column(
+                          Visibility(
+                            visible: isLoaded,
+                            child: ListView.builder(
+                              scrollDirection: Axis.vertical,
+                              shrinkWrap: true,
+                              itemCount: thisOrder?.length,
+                              itemBuilder: (context,index){
+                                return Column(
                                     children: [
                                       Row(
                                         mainAxisAlignment:
@@ -149,14 +170,14 @@ class _OrderViewState extends State<OrderView> {
                                             MainAxisAlignment.spaceEvenly,
                                         children: [
                                           Text(
-                                            'Customer: ${orders['Customer']}',
+                                            'Customer: ${thisOrder![index]['customer']}',
                                             style: TextStyle(
                                                 color: Colors.white,
                                                 fontSize: 15,
                                                 fontWeight: FontWeight.w500),
                                           ),
                                           Text(
-                                            'Contacts: ${orders['Contacts']}',
+                                            'Contacts: ${thisOrder![index]['contact']}',
                                             style: TextStyle(
                                                 color: Colors.white,
                                                 fontSize: 15,
@@ -172,14 +193,14 @@ class _OrderViewState extends State<OrderView> {
                                             MainAxisAlignment.spaceEvenly,
                                         children: [
                                           Text(
-                                            'Area: ${orders['Area']}',
+                                            'Area: ${thisOrder![index]['area']}',
                                             style: TextStyle(
                                                 color: Colors.white,
                                                 fontSize: 15,
                                                 fontWeight: FontWeight.w500),
                                           ),
                                           Text(
-                                            'Landmark: ${orders['Landmark']}',
+                                            'Landmark: ${thisOrder![index]['landmark']}',
                                             style: TextStyle(
                                                 color: Colors.white,
                                                 fontSize: 15,
@@ -187,31 +208,6 @@ class _OrderViewState extends State<OrderView> {
                                           ),
                                         ],
                                       ),
-                                    ],
-                                  );
-                                }),
-                          ),
-                          const SizedBox(
-                            height: 0,
-                          ),
-                          Text(
-                            'Order Details',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 19,
-                                fontWeight: FontWeight.w500),
-                          ),
-                          Expanded(
-                            child: FirebaseAnimatedList(
-                                query: dbRef2,
-                                itemBuilder: (BuildContext context,
-                                    DataSnapshot snapshot,
-                                    Animation<double> animation,
-                                    int index) {
-                                  Map order = snapshot.value as Map;
-                                  order['key'] = snapshot.key;
-                                  return Column(
-                                    children: [
                                       const SizedBox(
                                         height: 20,
                                       ),
@@ -220,14 +216,14 @@ class _OrderViewState extends State<OrderView> {
                                             MainAxisAlignment.spaceEvenly,
                                         children: [
                                           Text(
-                                            'Order Description: ${order['Item']}',
+                                            'Order Description: ${thisOrder![index]['item']}',
                                             style: TextStyle(
                                                 color: Colors.white,
                                                 fontSize: 15,
                                                 fontWeight: FontWeight.w500),
                                           ),
                                           Text(
-                                            'Amount: Ksh.${order['Price']}',
+                                            'Amount: Ksh.${thisOrder![index]['price']}',
                                             style: TextStyle(
                                                 color: Colors.white,
                                                 fontSize: 15,
@@ -238,23 +234,162 @@ class _OrderViewState extends State<OrderView> {
                                       const SizedBox(
                                         height: 10,
                                       ),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceEvenly,
-                                        children: [
-                                          Text(
-                                            'Quantity: ${order['Quantity']}',
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 15,
-                                                fontWeight: FontWeight.w500),
-                                          ),
-                                        ],
-                                      ),
+                                      
                                     ],
                                   );
-                                }),
-                          ),
+                                  
+                              }
+                              ),
+                              replacement: CircularProgressIndicator(),
+                              ),
+
+
+                          // Expanded(
+                          //   child: FirebaseAnimatedList(
+                          //       query: dbRef1,
+                          //       itemBuilder: (BuildContext context,
+                          //           DataSnapshot snapshot,
+                          //           Animation<double> animation,
+                          //           int index) {
+                          //         Map orders = snapshot.value as Map;
+                          //         orders['key'] = snapshot.key;
+                          //         return Column(
+                          //           children: [
+                          //             Row(
+                          //               mainAxisAlignment:
+                          //                   MainAxisAlignment.spaceBetween,
+                          //               children: [
+                          //                 Text(
+                          //                   'Status - ${status}',
+                          //                   style: TextStyle(
+                          //                       color: Colors.white,
+                          //                       fontSize: 15,
+                          //                       fontWeight: FontWeight.w500),
+                          //                 ),
+                          //                 Text('|'),
+                          //                 Text(
+                          //                   'Store - ${outlet}',
+                          //                   style: TextStyle(
+                          //                       color: Colors.white,
+                          //                       fontSize: 15,
+                          //                       fontWeight: FontWeight.w500),
+                          //                 ),
+                          //               ],
+                          //             ),
+                          //             const SizedBox(
+                          //               height: 20,
+                          //             ),
+                          //             Row(
+                          //               mainAxisAlignment:
+                          //                   MainAxisAlignment.spaceEvenly,
+                          //               children: [
+                          //                 Text(
+                          //                   'Customer: ${orders['Customer']}',
+                          //                   style: TextStyle(
+                          //                       color: Colors.white,
+                          //                       fontSize: 15,
+                          //                       fontWeight: FontWeight.w500),
+                          //                 ),
+                          //                 Text(
+                          //                   'Contacts: ${orders['Contacts']}',
+                          //                   style: TextStyle(
+                          //                       color: Colors.white,
+                          //                       fontSize: 15,
+                          //                       fontWeight: FontWeight.w500),
+                          //                 ),
+                          //               ],
+                          //             ),
+                          //             const SizedBox(
+                          //               height: 10,
+                          //             ),
+                          //             Row(
+                          //               mainAxisAlignment:
+                          //                   MainAxisAlignment.spaceEvenly,
+                          //               children: [
+                          //                 Text(
+                          //                   'Area: ${orders['Area']}',
+                          //                   style: TextStyle(
+                          //                       color: Colors.white,
+                          //                       fontSize: 15,
+                          //                       fontWeight: FontWeight.w500),
+                          //                 ),
+                          //                 Text(
+                          //                   'Landmark: ${orders['Landmark']}',
+                          //                   style: TextStyle(
+                          //                       color: Colors.white,
+                          //                       fontSize: 15,
+                          //                       fontWeight: FontWeight.w500),
+                          //                 ),
+                          //               ],
+                          //             ),
+                          //           ],
+                          //         );
+                          //       }),
+                          // ),
+                          // const SizedBox(
+                          //   height: 0,
+                          // ),
+                          // Text(
+                          //   'Order Details',
+                          //   style: TextStyle(
+                          //       color: Colors.white,
+                          //       fontSize: 19,
+                          //       fontWeight: FontWeight.w500),
+                          // ),
+                          // Expanded(
+                          //   child: FirebaseAnimatedList(
+                          //       query: dbRef2,
+                          //       itemBuilder: (BuildContext context,
+                          //           DataSnapshot snapshot,
+                          //           Animation<double> animation,
+                          //           int index) {
+                          //         Map order = snapshot.value as Map;
+                          //         order['key'] = snapshot.key;
+                          //         return Column(
+                          //           children: [
+                          //             const SizedBox(
+                          //               height: 20,
+                          //             ),
+                          //             Row(
+                          //               mainAxisAlignment:
+                          //                   MainAxisAlignment.spaceEvenly,
+                          //               children: [
+                          //                 Text(
+                          //                   'Order Description: ${order['Item']}',
+                          //                   style: TextStyle(
+                          //                       color: Colors.white,
+                          //                       fontSize: 15,
+                          //                       fontWeight: FontWeight.w500),
+                          //                 ),
+                          //                 Text(
+                          //                   'Amount: Ksh.${order['Price']}',
+                          //                   style: TextStyle(
+                          //                       color: Colors.white,
+                          //                       fontSize: 15,
+                          //                       fontWeight: FontWeight.w500),
+                          //                 ),
+                          //               ],
+                          //             ),
+                          //             const SizedBox(
+                          //               height: 10,
+                          //             ),
+                          //             Row(
+                          //               mainAxisAlignment:
+                          //                   MainAxisAlignment.spaceEvenly,
+                          //               children: [
+                          //                 Text(
+                          //                   'Quantity: ${order['Quantity']}',
+                          //                   style: TextStyle(
+                          //                       color: Colors.white,
+                          //                       fontSize: 15,
+                          //                       fontWeight: FontWeight.w500),
+                          //                 ),
+                          //               ],
+                          //             ),
+                          //           ],
+                          //         );
+                          //       }),
+                          // ),
                         ],
                       ),
                     ),
@@ -265,7 +400,7 @@ class _OrderViewState extends State<OrderView> {
                 ),
                 ElevatedButton(
                     onPressed: () async {
-                      if (status == 'Dispatched') {
+                      if (status == 'Transit') {
                         Position position = await _getGeoLocationPosition();
                         double location = position.latitude;
                         double location2 = position.longitude;

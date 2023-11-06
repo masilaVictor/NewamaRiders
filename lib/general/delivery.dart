@@ -6,6 +6,8 @@ import 'package:newamariders/general/dashboard.dart';
 import 'package:newamariders/general/location_service.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 
 class DeliveryPage extends StatefulWidget {
@@ -77,6 +79,32 @@ class _DeliveryPageState extends State<DeliveryPage> {
   final Completer<GoogleMapController> _controller =
       Completer<GoogleMapController>();
 
+
+  Future<void> completOrder() async{
+      try{
+        final result = await http.post(Uri.parse("http://api.newamadelivery.co.ke/completeOrder.php"), body: {
+          "orderId": orderNo,
+          "status": 'Delivered',
+          "deliveryTime": DateTime.now()
+                                        .millisecondsSinceEpoch
+                                        .toString(),
+
+
+        });
+        var response = jsonDecode(result.body);
+        if(response["success"] == "true"){
+          print("Records Added");
+        }
+        else{
+          print("Something Happened");
+        }
+
+      }
+      catch(e){
+        print(e);
+      }
+    }
+
   @override
 
 
@@ -137,11 +165,7 @@ class _DeliveryPageState extends State<DeliveryPage> {
                     content: Text('Do you want to complete order delivery?'),
                     actions: [
                       ElevatedButton(onPressed: (){
-                        updateOrder(
-                            'Delivered',
-                                  DateTime.now()
-                                        .millisecondsSinceEpoch
-                                        .toString());
+                       completOrder();
                         Navigator.push(context, MaterialPageRoute(builder: (context) =>const DashboardPage()));
                       }, 
                       child: Text('Confirm')),

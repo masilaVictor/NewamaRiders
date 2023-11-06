@@ -9,6 +9,8 @@ import 'package:newamariders/general/cancelledOrders.dart';
 import 'package:newamariders/general/deliveredOrders.dart';
 import 'package:newamariders/general/orderview.dart';
 import 'package:newamariders/general/returnedOrders.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -20,6 +22,50 @@ class DashboardPage extends StatefulWidget {
 class _DashboardPageState extends State<DashboardPage> {
   Query dbRef = FirebaseDatabase.instance.ref().child('Assignments');
   final User? user = FirebaseAuth.instance.currentUser;
+
+  var pendingOrders = [];
+  var myAllOrders = [];
+  var myDeliveredOrders = [];
+  var isLoaded = false;
+  var allOrders = 0;
+  var deliveredOrders = 0;
+
+  
+
+
+
+  @override
+  void initState(){
+    super.initState();
+    getPendingOrders();
+    getAllOrders();
+    getDeliveredOrders();
+  }
+
+  getPendingOrders() async{
+    final response = await http.get(Uri.parse("http://api.newamadelivery.co.ke/riderPendingOrders.php?rider=${user!.email as String}"));
+    setState(() {
+      pendingOrders = json.decode(response.body);
+      isLoaded = true;
+    });
+  }
+   getAllOrders() async{
+    final response = await http.get(Uri.parse("http://api.newamadelivery.co.ke/riderAll.php?rider=${user!.email as String}"));
+    setState(() {
+      myAllOrders = json.decode(response.body);
+      allOrders = myAllOrders.length;
+
+    });
+  }
+
+   getDeliveredOrders() async{
+    final response = await http.get(Uri.parse("http://api.newamadelivery.co.ke/riderDelivered.php?rider=${user!.email as String}"));
+    setState(() {
+      myDeliveredOrders = json.decode(response.body);
+      deliveredOrders = myDeliveredOrders.length;
+
+    });
+  }
   @override
   Widget build(BuildContext context) {
     var dt4 = DateTime.fromMillisecondsSinceEpoch(
@@ -51,12 +97,12 @@ class _DashboardPageState extends State<DashboardPage> {
                       bottomRight: Radius.circular(15))),
               child: SizedBox(
                 width: double.infinity,
-                height: 262,
+                height: 282,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(
-                      height: 30,
+                      height: 50,
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -123,7 +169,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                         color: Colors.white),
                                   ),
                                   Text(
-                                    'Total: 30',
+                                    'Total: ${allOrders}',
                                     style: TextStyle(
                                         fontWeight: FontWeight.w500,
                                         color: Colors.white),
@@ -160,7 +206,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                         color: Colors.white),
                                   ),
                                   Text(
-                                    'Total: 28',
+                                    'Total: ${deliveredOrders}',
                                     style: TextStyle(
                                         fontWeight: FontWeight.w500,
                                         color: Colors.white),
@@ -242,7 +288,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                         color: Colors.white),
                                   ),
                                   Text(
-                                    'Total: 2',
+                                    'Total: 0',
                                     style: TextStyle(
                                         fontWeight: FontWeight.w500,
                                         color: Colors.white),
@@ -314,64 +360,30 @@ class _DashboardPageState extends State<DashboardPage> {
                                     Text('Status',
                                         style: TextStyle(
                                             fontWeight: FontWeight.w500)),
-                                    Text('Assigned Time',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w500))
+                                   
                                   ],
                                 ),
                                 const SizedBox(
                                   height: 20,
                                 ),
-                                Expanded(
-                                  child: FirebaseAnimatedList(
-                                      query: dbRef
-                                          .orderByChild('RiderMail')
-                                          .equalTo(user!.email),
-                                      itemBuilder: (BuildContext context,
-                                          DataSnapshot snapshot,
-                                          Animation<double> animation,
-                                          int index) {
-                                        Map orders = snapshot.value as Map;
-                                        orders['key'] = snapshot.key;
+                                Visibility(
+                                  visible: isLoaded,
 
-                                        // var dt3 = DateTime.fromMillisecondsSinceEpoch(
-                                        // orders['postTime'].millisecondsSinceEpoch);
-                                        // var TAS3 = DateFormat('dd/MM/yyyy').format(dt3);
-
-                                        if (orders['outlet'] ==
-                                            'Naivas Mountain Mall') {
-                                          store = 'Mountain Mall';
-                                        } else if (orders['outlet'] ==
-                                            'Naivas Gateway Mall') {
-                                          store = 'Gateway Mall';
-                                        } else {
-                                          store = 'Not Set';
-                                        }
-
-                                        if (orders['Time'] == null) {
-                                          return Container();
-                                        } else {
-                                          var dt3 = DateTime
-                                              .fromMillisecondsSinceEpoch(
-                                                  int.parse(orders['Time']));
-                                          var TAS3 = DateFormat('dd/MM/yyyy')
-                                              .format(dt3);
-                                          var TAS9 =
-                                              DateFormat('hh:mm a').format(dt3);
-                                          if (TAS3.compareTo(TAS2) == 0) {
-                                            return GestureDetector(
+                                  child: ListView.builder(
+                                    scrollDirection: Axis.vertical,
+                                    shrinkWrap: true,
+                                    itemCount: pendingOrders?.length,
+                                    itemBuilder: (context,index){
+                                      return GestureDetector(
                                               onTap: () {
                                                 Navigator.push(
                                                     context,
                                                     MaterialPageRoute(
                                                         builder: (context) =>
                                                             OrderView(
-                                                                orderno: snapshot
-                                                                        .key
-                                                                    as String,
-                                                                outlet: store,
-                                                                status: orders[
-                                                                    'status'])));
+                                                                orderno: pendingOrders![index]['orderID'],
+                                                                outlet:  pendingOrders![index]['outlet'],
+                                                                status:  pendingOrders![index]['status'])));
                                               },
                                               child: Column(
                                                 children: [
@@ -380,11 +392,11 @@ class _DashboardPageState extends State<DashboardPage> {
                                                         MainAxisAlignment
                                                             .spaceBetween,
                                                     children: [
-                                                      Text('${snapshot.key}'),
-                                                      Text(store),
+                                                      Text('${pendingOrders![index]['orderID']}'),
+                                                      Text(pendingOrders![index]['outlet']),
                                                       Text(
-                                                          '${orders['status']}'),
-                                                      Text('$TAS9'),
+                                                          '${pendingOrders![index]['status']}'),
+                                                     
                                                     ],
                                                   ),
                                                   const SizedBox(
@@ -393,12 +405,94 @@ class _DashboardPageState extends State<DashboardPage> {
                                                 ],
                                               ),
                                             );
-                                          } else {
-                                            return Container();
-                                          }
-                                        }
-                                      }),
-                                ),
+
+                                    }),
+                                    replacement: CircularProgressIndicator(),
+                                    
+                                    ),
+
+
+
+
+
+
+                                // Expanded(
+                                //   child: FirebaseAnimatedList(
+                                //       query: dbRef
+                                //           .orderByChild('RiderMail')
+                                //           .equalTo(user!.email),
+                                //       itemBuilder: (BuildContext context,
+                                //           DataSnapshot snapshot,
+                                //           Animation<double> animation,
+                                //           int index) {
+                                //         Map orders = snapshot.value as Map;
+                                //         orders['key'] = snapshot.key;
+
+                                //         // var dt3 = DateTime.fromMillisecondsSinceEpoch(
+                                //         // orders['postTime'].millisecondsSinceEpoch);
+                                //         // var TAS3 = DateFormat('dd/MM/yyyy').format(dt3);
+
+                                //         if (orders['outlet'] ==
+                                //             'Naivas Mountain Mall') {
+                                //           store = 'Mountain Mall';
+                                //         } else if (orders['outlet'] ==
+                                //             'Naivas Gateway Mall') {
+                                //           store = 'Gateway Mall';
+                                //         } else {
+                                //           store = 'Not Set';
+                                //         }
+
+                                //         if (orders['Time'] == null) {
+                                //           return Container();
+                                //         } else {
+                                //           var dt3 = DateTime
+                                //               .fromMillisecondsSinceEpoch(
+                                //                   int.parse(orders['Time']));
+                                //           var TAS3 = DateFormat('dd/MM/yyyy')
+                                //               .format(dt3);
+                                //           var TAS9 =
+                                //               DateFormat('hh:mm a').format(dt3);
+                                //           if (TAS3.compareTo(TAS2) == 0) {
+                                //             return GestureDetector(
+                                //               onTap: () {
+                                //                 Navigator.push(
+                                //                     context,
+                                //                     MaterialPageRoute(
+                                //                         builder: (context) =>
+                                //                             OrderView(
+                                //                                 orderno: snapshot
+                                //                                         .key
+                                //                                     as String,
+                                //                                 outlet: store,
+                                //                                 status: orders[
+                                //                                     'status'])));
+                                //               },
+                                //               child: Column(
+                                //                 children: [
+                                //                   Row(
+                                //                     mainAxisAlignment:
+                                //                         MainAxisAlignment
+                                //                             .spaceBetween,
+                                //                     children: [
+                                //                       Text('${snapshot.key}'),
+                                //                       Text(store),
+                                //                       Text(
+                                //                           '${orders['status']}'),
+                                //                       Text('$TAS9'),
+                                //                     ],
+                                //                   ),
+                                //                   const SizedBox(
+                                //                     height: 13,
+                                //                   )
+                                //                 ],
+                                //               ),
+                                //             );
+                                //           } else {
+                                //             return Container();
+                                //           }
+                                //         }
+                                //       }),
+                                // ),
                                 GestureDetector(
                                   onTap: () {},
                                   child: GestureDetector(
