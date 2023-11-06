@@ -93,9 +93,6 @@ class _OrderViewState extends State<OrderView> {
     });
   }
 
-
-
-
   @override
   Widget build(BuildContext context) {
     Query dbRef1 = FirebaseDatabase.instance

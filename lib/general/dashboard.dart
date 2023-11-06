@@ -363,9 +363,9 @@ class _DashboardPageState extends State<DashboardPage> {
                                    
                                   ],
                                 ),
-                                const SizedBox(
-                                  height: 20,
-                                ),
+                                // const SizedBox(
+                                //   height: 20,
+                                // ),
                                 Visibility(
                                   visible: isLoaded,
 

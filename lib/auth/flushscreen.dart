@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:newamariders/auth/login.dart';
@@ -10,6 +11,7 @@ class FlushScreen extends StatefulWidget {
 }
 
 class _FlushScreenState extends State<FlushScreen> {
+   
   @override
   void initState() {
     super.initState();
