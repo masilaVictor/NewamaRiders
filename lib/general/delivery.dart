@@ -30,54 +30,54 @@ class _DeliveryPageState extends State<DeliveryPage> {
   final dataseRef = FirebaseDatabase.instance.ref();
   _DeliveryPageState(this.location, this.location2, this.orderNo);
 
-  Future<Position> _getGeoLocationPosition() async {
-    bool serviceEnabled;
-    LocationPermission permission;
+  // Future<Position> _getGeoLocationPosition() async {
+  //   bool serviceEnabled;
+  //   LocationPermission permission;
 
-    // Test if location services are enabled.
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      // Location services are not enabled don't continue
-      // accessing the position and request users of the
-      // App to enable the location services.
-      await Geolocator.openLocationSettings();
-      return Future.error('Location services are disabled.');
-    }
+  //   // Test if location services are enabled.
+  //   serviceEnabled = await Geolocator.isLocationServiceEnabled();
+  //   if (!serviceEnabled) {
+  //     // Location services are not enabled don't continue
+  //     // accessing the position and request users of the
+  //     // App to enable the location services.
+  //     await Geolocator.openLocationSettings();
+  //     return Future.error('Location services are disabled.');
+  //   }
 
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        // Permissions are denied, next time you could try
-        // requesting permissions again (this is also where
-        // Android's shouldShowRequestPermissionRationale
-        // returned true. According to Android guidelines
-        // your App should show an explanatory UI now.
-        return Future.error('Location permissions are denied');
-      }
-    }
+  //   permission = await Geolocator.checkPermission();
+  //   if (permission == LocationPermission.denied) {
+  //     permission = await Geolocator.requestPermission();
+  //     if (permission == LocationPermission.denied) {
+  //       // Permissions are denied, next time you could try
+  //       // requesting permissions again (this is also where
+  //       // Android's shouldShowRequestPermissionRationale
+  //       // returned true. According to Android guidelines
+  //       // your App should show an explanatory UI now.
+  //       return Future.error('Location permissions are denied');
+  //     }
+  //   }
 
-    if (permission == LocationPermission.deniedForever) {
-      // Permissions are denied forever, handle appropriately.
-      return Future.error(
-          'Location permissions are permanently denied, we cannot request permissions.');
-    }
+  //   if (permission == LocationPermission.deniedForever) {
+  //     // Permissions are denied forever, handle appropriately.
+  //     return Future.error(
+  //         'Location permissions are permanently denied, we cannot request permissions.');
+  //   }
 
-    // When we reach here, permissions are granted and we can
-    // continue accessing the position of the device.
-    return await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-  }
+  //   // When we reach here, permissions are granted and we can
+  //   // continue accessing the position of the device.
+  //   return await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+  // }
 
-  Future<void> GetAddressFromLatLong(Position position)async {
-    List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
-    print(placemarks);
-    Placemark place = placemarks[0];
-    Address = '${place.street}, ${place.subLocality}, ${place.locality}, ${place.postalCode}, ${place.country}';
-    setState(()  {
-    });
-  }
-  final Completer<GoogleMapController> _controller =
-      Completer<GoogleMapController>();
+  // Future<void> GetAddressFromLatLong(Position position)async {
+  //   List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
+  //   print(placemarks);
+  //   Placemark place = placemarks[0];
+  //   Address = '${place.street}, ${place.subLocality}, ${place.locality}, ${place.postalCode}, ${place.country}';
+  //   setState(()  {
+  //   });
+  // }
+  // final Completer<GoogleMapController> _controller =
+  //     Completer<GoogleMapController>();
 
 
   Future<void> completOrder() async{
@@ -112,74 +112,79 @@ class _DeliveryPageState extends State<DeliveryPage> {
   Widget build(BuildContext context) {
     TextEditingController _searchController = TextEditingController();
   
-  final CameraPosition _kGooglePlex = CameraPosition(
-    target: LatLng(location, location2),
-    zoom: 14.4746,
-  );
+  // final CameraPosition _kGooglePlex = CameraPosition(
+  //   target: LatLng(location, location2),
+  //   zoom: 14.4746,
+  // );
 
-   final Marker _kGooglePlexMarker = Marker(
-    markerId: MarkerId('_kGooglePlex'),
-    infoWindow: InfoWindow(title: 'Google Plex'),
-    icon: BitmapDescriptor.defaultMarker,
-    position:  LatLng(location, location2),
-  );
-   CameraPosition _kLake = CameraPosition(
-      bearing: 192.8334901395799,
-      target:  LatLng(location, location2),
-      tilt: 59.440717697143555,
-      zoom: 30);
+  //  final Marker _kGooglePlexMarker = Marker(
+  //   markerId: MarkerId('_kGooglePlex'),
+  //   infoWindow: InfoWindow(title: 'Google Plex'),
+  //   icon: BitmapDescriptor.defaultMarker,
+  //   position:  LatLng(location, location2),
+  // );
+  //  CameraPosition _kLake = CameraPosition(
+  //     bearing: 192.8334901395799,
+  //     target:  LatLng(location, location2),
+  //     tilt: 59.440717697143555,
+  //     zoom: 30);
      return Scaffold(
       appBar: AppBar(
         title: Text('Location'),
         backgroundColor: Colors.red,
       ),
-      body: Column(
-        children: [
-          
-          SizedBox(
-            width: double.infinity,
-            height: 500,
-            child: Expanded(
-              child: GoogleMap(
-                mapType: MapType.normal,
-                // markers: {_kGooglePlexMarker},
-                initialCameraPosition: _kGooglePlex,
-                onMapCreated: (GoogleMapController controller) {
-                  _controller.complete(controller);
-                },
-              ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            
+            // SizedBox(
+            //   width: double.infinity,
+            //   height: 500,
+            //   child: Expanded(
+            //     child: GoogleMap(
+            //       mapType: MapType.normal,
+            //       // markers: {_kGooglePlexMarker},
+            //       initialCameraPosition: _kGooglePlex,
+            //       onMapCreated: (GoogleMapController controller) {
+            //         _controller.complete(controller);
+            //       },
+            //     ),
+            //   ),
+            // ),
+           
+            Image.asset('assets/images/map.jpg'),
+            Text('GOOGLE MAP IS LOADING...'),
+            SizedBox(
+              height: 100,
             ),
-          ),
-          SizedBox(
-            height: 20,
-          ),
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              
-              ElevatedButton(onPressed: (){
-                showDialog(context: context, builder: (context){
-                  return AlertDialog(
-                    title: Text('Confirm Order Delivery'),
-                    content: Text('Do you want to complete order delivery?'),
-                    actions: [
-                      ElevatedButton(onPressed: (){
-                       completOrder();
-                        Navigator.push(context, MaterialPageRoute(builder: (context) =>const DashboardPage()));
-                      }, 
-                      child: Text('Confirm')),
-                      ElevatedButton(onPressed: (){
-                        Navigator.pop(context);
-                      }, 
-                      child: Text('Back'))
-                    ],
-                  );
-                });
-              }, child: Text('Complete'))
-            ],
-          )
-        ],
+      
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                
+                ElevatedButton(onPressed: (){
+                  showDialog(context: context, builder: (context){
+                    return AlertDialog(
+                      title: Text('Confirm Order Delivery'),
+                      content: Text('Do you want to complete order delivery?'),
+                      actions: [
+                        ElevatedButton(onPressed: (){
+                         completOrder();
+                          Navigator.push(context, MaterialPageRoute(builder: (context) =>const DashboardPage()));
+                        }, 
+                        child: Text('Confirm')),
+                        ElevatedButton(onPressed: (){
+                          Navigator.pop(context);
+                        }, 
+                        child: Text('Back'))
+                      ],
+                    );
+                  });
+                }, child: Text('Complete'))
+              ],
+            )
+          ],
+        ),
       ),
       // floatingActionButton: FloatingActionButton.extended(
       // onPressed: _goToTheLake,

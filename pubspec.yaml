@@ -50,8 +50,15 @@ dependencies:
   geocoding: ^2.1.0
   geolocator: ^9.0.2
   http: ^1.1.0
+  
 
 dev_dependencies:
+  flutter_launcher_icons: ^0.13.1
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/rider.png"
+
   flutter_test:
     sdk: flutter
 

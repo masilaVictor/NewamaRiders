@@ -97,7 +97,7 @@ class _DashboardPageState extends State<DashboardPage> {
                       bottomRight: Radius.circular(15))),
               child: SizedBox(
                 width: double.infinity,
-                height: 282,
+                height: 300,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -105,9 +105,10 @@ class _DashboardPageState extends State<DashboardPage> {
                       height: 50,
                     ),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      
                       children: [
-                        Row(
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text(
                               'Welcome,  ',
