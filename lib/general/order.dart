@@ -1,6 +1,10 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+import 'package:intl/intl.dart';
 
 class Order extends StatefulWidget {
   String outlet;
@@ -22,6 +26,24 @@ class _OrderState extends State<Order> {
   String status;
   final dataseRef = FirebaseDatabase.instance.ref();
   _OrderState(this.orderno, this.outlet, this.status);
+    List thisOrder = [];
+  var isLoaded = false;
+
+   getThisOrder() async {
+    final response = await http.get(Uri.parse(
+        "http://api.newamadelivery.co.ke/fetchOrder.php?orderId=${orderno}"));
+    setState(() {
+      thisOrder = json.decode(response.body);
+      isLoaded = true;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getThisOrder();
+   
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,159 +76,142 @@ class _OrderState extends State<Order> {
                 child: SizedBox(
                   width: double.infinity,
                   height: 230,
-                  child: Container(
-                    margin: EdgeInsets.fromLTRB(5, 10, 5, 0),
-                    child: Column(
-                      children: [
-                        Expanded(
-                          child: FirebaseAnimatedList(
-                              query: dbRef1,
-                              itemBuilder: (BuildContext context,
-                                  DataSnapshot snapshot,
-                                  Animation<double> animation,
-                                  int index) {
-                                Map orders = snapshot.value as Map;
-                                orders['key'] = snapshot.key;
-                                return Column(
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          'Status - ${status}',
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.w500),
-                                        ),
-                                        Text('|'),
-                                        Text(
-                                          'Store - ${outlet}',
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.w500),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(
-                                      height: 20,
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceEvenly,
-                                      children: [
-                                        Text(
-                                          'Customer: ${orders['Customer']}',
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.w500),
-                                        ),
-                                        Text(
-                                          'Contacts: ${orders['Contacts']}',
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.w500),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(
-                                      height: 10,
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceEvenly,
-                                      children: [
-                                        Text(
-                                          'Area: ${orders['Area']}',
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.w500),
-                                        ),
-                                        Text(
-                                          'Landmark: ${orders['Landmark']}',
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.w500),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
+                  child: Column(
+                    children: [
+                      Visibility(
+                            visible: isLoaded,
+                            child: ListView.builder(
+                              scrollDirection: Axis.vertical,
+                              shrinkWrap: true,
+                              itemCount: thisOrder?.length,
+                              itemBuilder: (context, index) {
+                                var dt3 =
+                                        DateTime.fromMillisecondsSinceEpoch(
+                                            int.parse(thisOrder![index]
+                                                ['postTime']));
+                                    var TAS3 =
+                                        DateFormat('dd/MM/yyyy').format(dt3);
+                                return Container(
+                                  
+                                  margin: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                                  child: Column(
+                                    children: [
+                                      Text('Date: ${TAS3}',style: TextStyle(color: Colors.white),),
+                                      const SizedBox(height: 20,),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            'Status - ${status}',
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.w500),
+                                          ),
+                                          Text('|'),
+                                          Text(
+                                            'Store - ${outlet}',
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.w500),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(
+                                        height: 20,
+                                      ),
+                                      Column(
+                                        children: [
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(
+                                                'Customer: ${thisOrder![index]['customer']}',
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 15,
+                                                    fontWeight:
+                                                        FontWeight.w500),
+                                              ),
+                                              Text(
+                                                'Contacts: ${thisOrder![index]['contacts']}',
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 15,
+                                                    fontWeight:
+                                                        FontWeight.w500),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(
+                                        height: 10,
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                'Area: ${thisOrder![index]['area']}',
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 15,
+                                                    fontWeight:
+                                                        FontWeight.w500),
+                                              ),
+                                              const SizedBox(
+                                                height: 10,
+                                              ),
+                                              Text(
+                                                'Landmark: ${thisOrder![index]['landmark']}',
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 15,
+                                                    fontWeight:
+                                                        FontWeight.w500),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(
+                                        height: 10,
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            'Items: ${thisOrder![index]['item']}',
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.w500),
+                                          ),
+                                          Text(
+                                            'Value: Kes ${thisOrder![index]['price']}/=',
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.w500),
+                                          ),
+                                        ],
+                                      )
+                                    ],
+                                  ),
                                 );
-                              }),
-                        ),
-                        const SizedBox(
-                          height: 0,
-                        ),
-                        Text(
-                          'Order Details',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 19,
-                              fontWeight: FontWeight.w500),
-                        ),
-                        Expanded(
-                          child: FirebaseAnimatedList(
-                              query: dbRef2,
-                              itemBuilder: (BuildContext context,
-                                  DataSnapshot snapshot,
-                                  Animation<double> animation,
-                                  int index) {
-                                Map order = snapshot.value as Map;
-                                order['key'] = snapshot.key;
-                                return Column(
-                                  children: [
-                                    const SizedBox(
-                                      height: 20,
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceEvenly,
-                                      children: [
-                                        Text(
-                                          'Order Description: ${order['Item']}',
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.w500),
-                                        ),
-                                        Text(
-                                          'Amount: Ksh.${order['Price']}',
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.w500),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(
-                                      height: 10,
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceEvenly,
-                                      children: [
-                                        Text(
-                                          'Quantity: ${order['Quantity']}',
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.w500),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                );
-                              }),
-                        ),
-                      ],
-                    ),
-                  ),
+                              },
+                            )),
+                    ],
+                  )
                 ),
               ),
               const SizedBox(

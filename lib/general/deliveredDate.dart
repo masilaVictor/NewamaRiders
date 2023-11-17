@@ -110,8 +110,7 @@ class _DeliveredDateState extends State<DeliveredDate> {
                         context,
                         MaterialPageRoute(
                             builder: (context) => DeliveredOrders(
-                                  selectedDate: endDate,
-                                  end: sDate,
+                                  
                                 )));
                   },
                   child: Text('PROCEED')),

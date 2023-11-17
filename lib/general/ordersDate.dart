@@ -109,7 +109,7 @@ class _OrdersDateState extends State<OrdersDate> {
                         context,
                         MaterialPageRoute(
                             builder: (context) =>
-                                AllOrders(selectedDate: endDate, end: sDate,)));
+                                AllOrders()));
                   },
                   child: Text('PROCEED')),
 

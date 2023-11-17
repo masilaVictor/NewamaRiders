@@ -1,6 +1,7 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:newamariders/general/delivery.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
@@ -136,8 +137,16 @@ class _OrderViewState extends State<OrderView> {
                               shrinkWrap: true,
                               itemCount: thisOrder?.length,
                               itemBuilder: (context,index){
+                                 var dt3 =
+                                        DateTime.fromMillisecondsSinceEpoch(
+                                            int.parse(thisOrder![index]
+                                                ['postTime']));
+                                    var TAS3 =
+                                        DateFormat('dd/MM/yyyy').format(dt3);
                                 return Column(
                                     children: [
+                                      Text('Date: ${TAS3}',style: TextStyle(color: Colors.white),),
+                                      const SizedBox(height: 20,),
                                       Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
@@ -174,7 +183,7 @@ class _OrderViewState extends State<OrderView> {
                                                 fontWeight: FontWeight.w500),
                                           ),
                                           Text(
-                                            'Contacts: ${thisOrder![index]['contact']}',
+                                            'Contacts: ${thisOrder![index]['contacts']}',
                                             style: TextStyle(
                                                 color: Colors.white,
                                                 fontSize: 15,

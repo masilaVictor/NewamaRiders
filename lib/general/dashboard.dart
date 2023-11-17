@@ -14,21 +14,29 @@ import 'dart:convert';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
+  
 
   @override
   State<DashboardPage> createState() => _DashboardPageState();
 }
 
 class _DashboardPageState extends State<DashboardPage> {
+  
   Query dbRef = FirebaseDatabase.instance.ref().child('Assignments');
   final User? user = FirebaseAuth.instance.currentUser;
 
   var pendingOrders = [];
   var myAllOrders = [];
   var myDeliveredOrders = [];
+  var myReturnedOrders = [];
+  var myCancelledOrders = [];
   var isLoaded = false;
   var allOrders = 0;
   var deliveredOrders = 0;
+  var returnedOrders = 0;
+  var cancelledOrders = 0;
+  var dte3;
+  
 
   
 
@@ -36,25 +44,53 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   void initState(){
+
+
     super.initState();
+    
     getPendingOrders();
     getAllOrders();
     getDeliveredOrders();
+    getCancelledOrders();
+
+
   }
 
   getPendingOrders() async{
-    final response = await http.get(Uri.parse("http://api.newamadelivery.co.ke/riderPendingOrders.php?rider=${user!.email as String}"));
+    var dt2 = DateTime.fromMillisecondsSinceEpoch(
+        DateTime.now().millisecondsSinceEpoch);
+    var TAS2 = DateFormat('dd/MM/yyyy').format(dt2);
+    var dateTimeFormat = DateFormat('dd/MM/yyyy', 'en_US').parse(TAS2);
+    dte3 = dateTimeFormat.millisecondsSinceEpoch;
+    final response = await http.get(Uri.parse("http://api.newamadelivery.co.ke/riderPendingOrders.php?rider=%27${user!.email as String}%27&fromTime=${dte3.toString()}"));
     setState(() {
       pendingOrders = json.decode(response.body);
       isLoaded = true;
     });
   }
+
    getAllOrders() async{
     final response = await http.get(Uri.parse("http://api.newamadelivery.co.ke/riderAll.php?rider=${user!.email as String}"));
     setState(() {
       myAllOrders = json.decode(response.body);
       allOrders = myAllOrders.length;
 
+    });
+  }
+     getReturnedOrders() async{
+    final response = await http.get(Uri.parse("http://api.newamadelivery.co.ke/riderReturned.php?rider=${user!.email as String}"));
+    setState(() {
+      myReturnedOrders = json.decode(response.body);
+      returnedOrders = myReturnedOrders.length;
+
+    });
+  }
+
+    getCancelledOrders() async{
+    final response = await http.get(Uri.parse("http://api.newamadelivery.co.ke/riderCancelled.php?rider=${user!.email as String}"));
+    setState(() {
+      myCancelledOrders = json.decode(response.body);
+      cancelledOrders = myCancelledOrders.length;
     });
   }
 
@@ -76,7 +112,28 @@ class _DashboardPageState extends State<DashboardPage> {
     var dt2 = DateTime.fromMillisecondsSinceEpoch(
         DateTime.now().millisecondsSinceEpoch);
     var TAS2 = DateFormat('dd/MM/yyyy').format(dt2);
+    // var dateTimeFormat = DateFormat('dd/MM/yyyy', 'en_US').parse(TAS2);
+    // var dte3 = dateTimeFormat.millisecondsSinceEpoch;
+    
+    
     var store;
+    var dateCheck;
+    var dte = '16/11/2023';
+    var dte2;
+    
+    // if(TAS2 == dte){
+    //   dateCheck = 'Date is equal'; 
+      
+    //   setState(() {
+    //     dte = TAS2;
+    //     var dateTimeFormat = DateFormat('dd/MM/yyyy', 'en_US').parse(TAS2);
+    //     dte3 = dateTimeFormat.millisecondsSinceEpoch;
+
+    //   });                     
+    // }
+    // else{
+    //   dateCheck = 'Date not equal';
+    // }
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
@@ -157,8 +214,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) => AllOrders(
-                                            selectedDate: TAS4, end: TAS5)));
+                                        builder: (context) => AllOrders()));
                               },
                               child: Column(
                                 children: [
@@ -194,7 +250,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) => DeliveredOrders(
-                                            selectedDate: TAS4, end: TAS5)));
+                                           )));
                               },
                               child: Column(
                                 children: [
@@ -239,7 +295,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) => ReturnedOrders(
-                                            selectedDate: TAS4, end: TAS5)));
+                                          )));
                               },
                               child: Column(
                                 children: [
@@ -252,7 +308,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                         color: Colors.white),
                                   ),
                                   Text(
-                                    'Total: 0',
+                                    'Total: ${returnedOrders}',
                                     style: TextStyle(
                                         fontWeight: FontWeight.w500,
                                         color: Colors.white),
@@ -276,7 +332,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) => CancelledOrders(
-                                            selectedDate: TAS4, end: TAS5)));
+                                            )));
                               },
                               child: Column(
                                 children: [
@@ -289,7 +345,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                         color: Colors.white),
                                   ),
                                   Text(
-                                    'Total: 0',
+                                    'Total: ${cancelledOrders}',
                                     style: TextStyle(
                                         fontWeight: FontWeight.w500,
                                         color: Colors.white),
@@ -313,6 +369,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     'Activity Summary',
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
                   ),
+                  
                   SizedBox(
                     height: 20,
                   ),
@@ -333,6 +390,9 @@ class _DashboardPageState extends State<DashboardPage> {
                         const SizedBox(
                           height: 20,
                         ),
+                        // Text(dateCheck),
+                        
+                        
                         Container(
                           padding: EdgeInsets.all(5),
                           decoration: BoxDecoration(
@@ -361,6 +421,9 @@ class _DashboardPageState extends State<DashboardPage> {
                                     Text('Status',
                                         style: TextStyle(
                                             fontWeight: FontWeight.w500)),
+                                            Text('Assigned',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w500)),
                                    
                                   ],
                                 ),
@@ -375,6 +438,9 @@ class _DashboardPageState extends State<DashboardPage> {
                                     shrinkWrap: true,
                                     itemCount: pendingOrders?.length,
                                     itemBuilder: (context,index){
+                                        var dt3 = DateTime.fromMillisecondsSinceEpoch(
+                                        int.parse(pendingOrders![index]['assignTime']));
+                                        var TAS3 = DateFormat('hh:mm:ss a').format(dt3);
                                       return GestureDetector(
                                               onTap: () {
                                                 Navigator.push(
@@ -397,6 +463,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                                       Text(pendingOrders![index]['outlet']),
                                                       Text(
                                                           '${pendingOrders![index]['status']}'),
+                                                          Text(TAS3),
                                                      
                                                     ],
                                                   ),
@@ -502,8 +569,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                           context,
                                           MaterialPageRoute(
                                               builder: (context) => AllOrders(
-                                                  selectedDate: TAS4,
-                                                  end: TAS5)));
+                                                  )));
                                     },
                                     child: Row(
                                       children: [

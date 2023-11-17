@@ -111,8 +111,7 @@ class _CancelledDateState extends State<CancelledDate> {
                         context,
                         MaterialPageRoute(
                             builder: (context) => CancelledOrders(
-                                  selectedDate: endDate,
-                                  end: sDate,
+                                 
                                 )));
                   },
                   child: Text('PROCEED')),

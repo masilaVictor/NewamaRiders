@@ -12,24 +12,87 @@ import 'dart:convert';
 
 
 class DeliveredOrders extends StatefulWidget {
-  var selectedDate;
-  var end;
  
-  DeliveredOrders({super.key, required this.selectedDate, required this.end});
+  DeliveredOrders({super.key, this.restorationId});
+  final String? restorationId;
 
   @override
   State<DeliveredOrders> createState() =>
-      _DeliveredOrdersState(selectedDate, end);
+      _DeliveredOrdersState();
 }
 
-class _DeliveredOrdersState extends State<DeliveredOrders> {
+class _DeliveredOrdersState extends State<DeliveredOrders>with RestorationMixin {
+
+
   Query dbRef = FirebaseDatabase.instance.ref().child('Orders');
   final User? user = FirebaseAuth.instance.currentUser;
   var selectedDate;
   var end;
    var isLoaded = false;
   List myDeliveredOrders = [];
-  _DeliveredOrdersState(this.selectedDate, this.end);
+
+  String? get restorationId => widget.restorationId;
+  // var Thistime =((DateTime.now().millisecondsSinceEpoch));
+
+  late var dt2 = DateTime.fromMillisecondsSinceEpoch(DateTime.now().millisecondsSinceEpoch);
+  late var TAS2 = DateFormat('dd/MM/yyyy').format(dt2);
+  late var dateTimeFormat = DateFormat('dd/MM/yyyy', 'en_US').parse(TAS2);
+  late var Thistime = dateTimeFormat.millisecondsSinceEpoch;
+
+  final RestorableDateTime _selectedDate =
+      RestorableDateTime(DateTime.fromMillisecondsSinceEpoch(
+        DateTime.now().millisecondsSinceEpoch));
+  late final RestorableRouteFuture<DateTime?> _restorableDatePickerRouteFuture =
+      RestorableRouteFuture<DateTime?>(
+    onComplete: _selectDate,
+    onPresent: (NavigatorState navigator, Object? arguments) {
+      return navigator.restorablePush(
+        _datePickerRoute,
+        arguments: _selectedDate.value.millisecondsSinceEpoch,
+       
+      );
+    },
+  );
+  @pragma('vm:entry-point')
+  static Route<DateTime> _datePickerRoute(
+    BuildContext context,
+    Object? arguments,
+  ) {
+    return DialogRoute<DateTime>(
+      context: context,
+      builder: (BuildContext context) {
+        return DatePickerDialog(
+          restorationId: 'date_picker_dialog',
+          initialEntryMode: DatePickerEntryMode.calendarOnly,
+          initialDate: DateTime.fromMillisecondsSinceEpoch(arguments! as int),
+          firstDate: DateTime(2023),
+          lastDate: DateTime(2030),
+        );
+      },
+    );
+  }
+
+  @override
+  void restoreState(RestorationBucket? oldBucket, bool initialRestore) {
+    registerForRestoration(_selectedDate, 'selected_date');
+    registerForRestoration(
+        _restorableDatePickerRouteFuture, 'date_picker_route_future');
+  }
+
+  void _selectDate(DateTime? newSelectedDate) {
+    if (newSelectedDate != null) {
+      setState(() {
+        _selectedDate.value = newSelectedDate;
+         Thistime = _selectedDate.value.millisecondsSinceEpoch;
+         getDeliveredOrders();
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(
+              'Selected: ${_selectedDate.value.day}/${_selectedDate.value.month}/${_selectedDate.value.year}'),
+        ));
+      });
+    }
+  }
+  
 
   @override
   void initState(){
@@ -38,7 +101,7 @@ class _DeliveredOrdersState extends State<DeliveredOrders> {
   }
 
   getDeliveredOrders() async{
-    final response = await http.get(Uri.parse("http://api.newamadelivery.co.ke/riderDelivered.php?rider=${user!.email as String}"));
+    final response = await http.get(Uri.parse("http://api.newamadelivery.co.ke/riderDayDelivered.php?rider=${user!.email as String}&fromTime=${Thistime.toString()}"));
     setState(() {
       myDeliveredOrders = json.decode(response.body);
       isLoaded = true;
@@ -66,6 +129,12 @@ class _DeliveredOrdersState extends State<DeliveredOrders> {
           margin: EdgeInsets.fromLTRB(10, 30, 10, 10),
           child: Column(
             children: [
+               OutlinedButton(
+                        onPressed: () {
+                          _restorableDatePickerRouteFuture.present();
+                        },
+                        child: const Text('Select Day To View',style: TextStyle(color: Colors.black),),
+                      ),
               // Row(
               //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               //   children: [
@@ -88,7 +157,8 @@ class _DeliveredOrdersState extends State<DeliveredOrders> {
               Visibility(
                 visible: isLoaded,
                 child: ListView.builder(
-                  scrollDirection: Axis.vertical,
+                   physics: NeverScrollableScrollPhysics(),
+                  
                   shrinkWrap: true,
                   itemCount: myDeliveredOrders?.length,
                   itemBuilder: (context, index){

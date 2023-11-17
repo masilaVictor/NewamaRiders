@@ -10,22 +10,86 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class AllOrders extends StatefulWidget {
-  var selectedDate;
-  var end;
-  AllOrders({super.key, required this.selectedDate, required this.end});
+
+  AllOrders({super.key, this.restorationId});
+  final String? restorationId;
+ 
 
   @override
-  State<AllOrders> createState() => _AllOrdersState(selectedDate, end);
+  State<AllOrders> createState() => _AllOrdersState();
 }
 
-class _AllOrdersState extends State<AllOrders> {
+class _AllOrdersState extends State<AllOrders> with RestorationMixin{
   Query dbRef = FirebaseDatabase.instance.ref().child('Orders');
   final User? user = FirebaseAuth.instance.currentUser;
   var selectedDate;
   List myAllOrders = [];
   var isLoaded = false;
   var end;
-  _AllOrdersState(this.selectedDate, this.end);
+  //late var Thistime;
+
+   String? get restorationId => widget.restorationId;
+  // var Thistime =((DateTime.now().millisecondsSinceEpoch));
+
+  late var dt2 = DateTime.fromMillisecondsSinceEpoch(DateTime.now().millisecondsSinceEpoch);
+  late var TAS2 = DateFormat('dd/MM/yyyy').format(dt2);
+  late var dateTimeFormat = DateFormat('dd/MM/yyyy', 'en_US').parse(TAS2);
+  late var Thistime = dateTimeFormat.millisecondsSinceEpoch;
+
+  final RestorableDateTime _selectedDate =
+      RestorableDateTime(DateTime.fromMillisecondsSinceEpoch(
+        DateTime.now().millisecondsSinceEpoch));
+  late final RestorableRouteFuture<DateTime?> _restorableDatePickerRouteFuture =
+      RestorableRouteFuture<DateTime?>(
+    onComplete: _selectDate,
+    onPresent: (NavigatorState navigator, Object? arguments) {
+      return navigator.restorablePush(
+        _datePickerRoute,
+        arguments: _selectedDate.value.millisecondsSinceEpoch,
+       
+      );
+    },
+  );
+  @pragma('vm:entry-point')
+  static Route<DateTime> _datePickerRoute(
+    BuildContext context,
+    Object? arguments,
+  ) {
+    return DialogRoute<DateTime>(
+      context: context,
+      builder: (BuildContext context) {
+        return DatePickerDialog(
+          restorationId: 'date_picker_dialog',
+          initialEntryMode: DatePickerEntryMode.calendarOnly,
+          initialDate: DateTime.fromMillisecondsSinceEpoch(arguments! as int),
+          firstDate: DateTime(2023),
+          lastDate: DateTime(2030),
+        );
+      },
+    );
+  }
+
+  @override
+  void restoreState(RestorationBucket? oldBucket, bool initialRestore) {
+    registerForRestoration(_selectedDate, 'selected_date');
+    registerForRestoration(
+        _restorableDatePickerRouteFuture, 'date_picker_route_future');
+  }
+
+  void _selectDate(DateTime? newSelectedDate) {
+    if (newSelectedDate != null) {
+      setState(() {
+        _selectedDate.value = newSelectedDate;
+         Thistime = _selectedDate.value.millisecondsSinceEpoch;
+         getAllOrders();
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(
+              'Selected: ${_selectedDate.value.day}/${_selectedDate.value.month}/${_selectedDate.value.year}'),
+        ));
+      });
+    }
+  }
+
 
   @override
   void initState(){
@@ -34,7 +98,8 @@ class _AllOrdersState extends State<AllOrders> {
   }
 
   getAllOrders() async{
-    final response = await http.get(Uri.parse("http://api.newamadelivery.co.ke/riderAll.php?rider=${user!.email as String}"));
+
+    final response = await http.get(Uri.parse("http://api.newamadelivery.co.ke/riderPendingOrders.php?rider=%27${user!.email as String}%27&fromTime=${Thistime.toString()}"));
     setState(() {
       myAllOrders = json.decode(response.body);
       isLoaded = true;
@@ -62,6 +127,12 @@ class _AllOrdersState extends State<AllOrders> {
           margin: EdgeInsets.fromLTRB(10, 30, 10, 10),
           child: Column(
             children: [
+              OutlinedButton(
+                        onPressed: () {
+                          _restorableDatePickerRouteFuture.present();
+                        },
+                        child: const Text('Select Day To View',style: TextStyle(color: Colors.black),),
+                      ),
               // Row(
               //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               //   children: [
